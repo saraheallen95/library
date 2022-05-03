@@ -3,6 +3,13 @@ function main() {
 
   const myCookBookLibrary = [];
 
+  const bookColors = ["red", "blue", "yellow", "orange", "green", "purple"];
+
+  //prototype to get random item from array
+  Array.prototype.random = function () {
+    return this[Math.floor(Math.random() * this.length)];
+  };
+
   //get body tag to start adding dom elements
   const body = document.getElementsByTagName("body")[0];
 
@@ -34,8 +41,10 @@ function main() {
     addToShelf = function () {
       const bookDiv = document.createElement("div");
       shelf.appendChild(bookDiv);
-      bookDiv.style.backgroundColor = "blue";
       bookDiv.innerText = this.title;
+      //bookDiv.style.backgroundColor = `"${bookColors.random()}"`;
+      bookDiv.style.border = "8px black solid;";
+
       for (const value of Object.values(this)) {
         if (typeof value == "string") {
           const para = document.createElement("p");
@@ -46,7 +55,11 @@ function main() {
     };
   }
 
-  //HERE need function to randomly select color for book
+  //function to style book
+  function styleBook(bookDiv) {
+    bookDiv.style.backgroundColor = `"${bookColors.random()}"`;
+    console.log(bookColors.random());
+  }
 
   //crate button associated with the toggle recipe function once cookBook is created
   function createToggleTriedRecipeBtn(myCookBookLibrary) {
@@ -74,7 +87,6 @@ function main() {
         event.preventDefault();
         let book = addNewCookBook(this);
         myCookBookLibrary.push(book);
-        console.log("it worked!");
         book.addToShelf();
         document.getElementById("popUpForm").style.display = "none";
       });
