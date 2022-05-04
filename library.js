@@ -1,3 +1,10 @@
+//priorities for this code, in order:
+//1. current method of testing addEventListener function is extremely ineffecient. Need to figure out how to add to testing suite.
+//2. figure out why submit is firing twice?
+//3. oh, myCookBookLibrary...need to decide, where do I create this array? how to not use as a global constant? how to use at all?
+//TOP said to use an array to store book values, which I'm sure I need, but troubling that as is I'm not sure my program would need it...
+//possible I'm missing the point of this assignment
+
 function main() {
   //initialize library array
 
@@ -63,11 +70,12 @@ function main() {
   function createToggleTriedRecipeBtn(myCookBookLibrary) {
     const toggleTriedRecipeBtn = document.createElement("button");
     toggleTriedRecipeBtn.innerText = "I've Tried a Recipe From This Cookbook";
+    //when I called this function I have to make sure that "this" is actually the book in question..
     toggleTriedRecipeBtn.onclick(this.markBookAstriedRecipe);
     return toggleTriedRecipeBtn;
   }
 
-  //functions to open/close form
+  //functions to open form
   function openForm(myCookBookLibrary) {
     document.getElementById("popUpForm").style.display = "block";
     if (!document.body.contains(document.getElementById("cancelBtn"))) {
@@ -82,14 +90,20 @@ function main() {
 
       //this cookbook library is a global constant that needs to be removed...also TOP said I should use an array but I'm not using it so far
       myCookBookLibrary.push(book);
+
+      //create new book div on shelf
       book.addToShelf();
+
+      //next line closes form
       document.getElementById("popUpForm").style.display = "none";
+
+      //fix for repeated firing of submit
       event.stopImmediatePropagation();
       event.preventDefault();
     });
   }
 
-  //function to call on submit to add a new cookbook to the array
+  //function to call on submit to turn form data into a cookbook object
   function addNewCookBook(form) {
     let formData = new FormData(form);
 
@@ -99,6 +113,8 @@ function main() {
     let favrecipe = formData.get("favrecipe");
     let triedRecipe = false;
 
+    //reset form inputs to zero after getting from data and inserting into array
+    //tried to add myCookBookLibrary.push(book) to this with myCookBookLibrary as a parameter, did not work... need to try again
     const inputs = document.querySelectorAll(
       "#title, #author, #cuisine, #favrecipe, #triedRecipe"
     );
@@ -109,17 +125,19 @@ function main() {
     return new cookBook(title, author, triedRecipe, cuisine, favrecipe);
   }
 
+  //functino to close window if needed
   function addCancelBtn() {
     const cancelBtn = document.createElement("button");
     cancelBtn.innerText = "Cancel";
     cancelBtn.setAttribute("id", "cancelBtn");
     cancelBtn.onclick = function () {
+      //bad practice to call the same anonymous function due to memory issues but I do that here, need to turn this into a closeForm function, was getting errors I did not understand.
       document.getElementById("popUpForm").style.display = "none";
     };
     return cancelBtn;
   }
 
-  //button to add new cookbook
+  //button to create button to open the form to add a new cookbook to myCookBookLibrary
   function addNewCookBookBtn(myCookBookLibrary) {
     const addNewCookBookBtn = document.createElement("button");
     addNewCookBookBtn.innerText = "Add A New Cookbook";
@@ -129,19 +147,9 @@ function main() {
     return addNewCookBookBtn;
   }
 
-  //NEED TO WRITE
-
-  //function to add to submit event listener to add a new element to the DOM based on the cookbooklibrary array
-
-  function addCookBookDiv(myCookBookLibrary) {
-    for (const [key, value] of formData) {
-      console.log("»", key, value);
-    }
-  }
-
-  //function to add the toggle tried recipe value once the element has been added to the dom (book on shelf)
-
   //test function to make sure my functions work and library exists
+  //as my program got more complicated I lost sight of how I test it...need to look into how to test addEventListener functions?
+  //so annoying to have to add cookbook after cookbook... should make this priority ASAP
   function test() {
     console.log("test runs!");
 
