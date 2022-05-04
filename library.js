@@ -1,7 +1,7 @@
 function main() {
   //initialize library array
 
-  const myCookBookLibrary = [];
+  let myCookBookLibrary = [];
 
   const bookColors = ["red", "blue", "yellow", "orange", "green", "purple"];
 
@@ -19,6 +19,7 @@ function main() {
   shelf.style.backgroundColor = "saddlebrown";
   shelf.style.border = "16px solid black";
   shelf.style.minWidth = "100%";
+  shelf.style.maxWidth = "100%";
   shelf.style.minHeight = "33%";
   body.appendChild(shelf);
 
@@ -38,27 +39,24 @@ function main() {
         this.triedRecipe = false;
       }
     };
-    addToShelf = function () {
+    addToShelf() {
       const bookDiv = document.createElement("div");
       shelf.appendChild(bookDiv);
-      bookDiv.innerText = this.title;
-      //bookDiv.style.backgroundColor = `"${bookColors.random()}"`;
-      bookDiv.style.border = "8px black solid;";
+      bookDiv.style.display = "flex";
+      bookDiv.style.flexDirection = "column";
+
+      const color = bookColors.random();
+      bookDiv.style.backgroundColor = color;
+      bookDiv.style.border = "8px black solid";
+      bookDiv.style.maxWidth = "20%";
+      bookDiv.style.minWidth = "20%";
 
       for (const value of Object.values(this)) {
         if (typeof value == "string") {
-          const para = document.createElement("p");
-          para.innerText = value;
-          bookDiv.appendChild(para);
+          bookDiv.innerText += " " + value;
         }
       }
-    };
-  }
-
-  //function to style book
-  function styleBook(bookDiv) {
-    bookDiv.style.backgroundColor = `"${bookColors.random()}"`;
-    console.log(bookColors.random());
+    }
   }
 
   //crate button associated with the toggle recipe function once cookBook is created
@@ -76,20 +74,19 @@ function main() {
       document.getElementById("popUpForm").appendChild(addCancelBtn());
     }
 
-    function closeForm() {
-      document.getElementById("popUpForm").style.display = "none";
-    }
-
     //event listener to call function to add new cookbook when submit is pressed
-    document
-      .querySelector("#newCookBookForm")
-      .addEventListener("submit", function (event) {
-        event.preventDefault();
-        let book = addNewCookBook(this);
-        myCookBookLibrary.push(book);
-        book.addToShelf();
-        document.getElementById("popUpForm").style.display = "none";
-      });
+    const form = document.querySelector("#newCookBookForm");
+
+    form.addEventListener("submit", function (event) {
+      let book = addNewCookBook(this);
+
+      //this cookbook library is a global constant that needs to be removed...also TOP said I should use an array but I'm not using it so far
+      myCookBookLibrary.push(book);
+      book.addToShelf();
+      document.getElementById("popUpForm").style.display = "none";
+      event.stopImmediatePropagation();
+      event.preventDefault();
+    });
   }
 
   //function to call on submit to add a new cookbook to the array
@@ -101,6 +98,13 @@ function main() {
     let cuisine = formData.get("cuisine");
     let favrecipe = formData.get("favrecipe");
     let triedRecipe = false;
+
+    const inputs = document.querySelectorAll(
+      "#title, #author, #cuisine, #favrecipe, #triedRecipe"
+    );
+    inputs.forEach((input) => {
+      input.value = "";
+    });
 
     return new cookBook(title, author, triedRecipe, cuisine, favrecipe);
   }
@@ -116,7 +120,7 @@ function main() {
   }
 
   //button to add new cookbook
-  function addNewCookBookBtn(cookBookForm) {
+  function addNewCookBookBtn(myCookBookLibrary) {
     const addNewCookBookBtn = document.createElement("button");
     addNewCookBookBtn.innerText = "Add A New Cookbook";
     addNewCookBookBtn.onclick = function () {
