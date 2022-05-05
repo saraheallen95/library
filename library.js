@@ -1,192 +1,417 @@
-//priorities for this code, in order:
-//1. current method of testing addEventListener function is extremely ineffecient. Need to figure out how to add to testing suite.
-//2. figure out why submit is firing twice?
-//3. oh, myCookBookLibrary...need to decide, where do I create this array? how to not use as a global constant? how to use at all?
-//TOP said to use an array to store book values, which I'm sure I need, but troubling that as is I'm not sure my program would need it...
-//possible I'm missing the point of this assignment
+const bookColors = ["red", "blue", "yellow", "orange", "green", "purple"];
+
+function test() {
+  const el = document.createElement("pre");
+  el.style.color = "black";
+  document.body.appendChild(el);
+
+  function log(text) {
+    console.log(text);
+    el.innerText += `\n${text}`;
+  }
+
+  function assert(assertion, message) {
+    if (!assertion) {
+      log(message);
+    }
+  }
+
+  assert(1 + 1 == 2, "Math is wrong");
+  let book = library.find((book) => book.title === "Spanish Cuisine");
+  assert(book.title == "Spanish Cuisine", "Spanish Cuisine should exist");
+}
 
 function main() {
-  //initialize library array
-
-  let myCookBookLibrary = [];
-
-  const bookColors = ["red", "blue", "yellow", "orange", "green", "purple"];
-
-  //prototype to get random item from array
-  Array.prototype.random = function () {
-    return this[Math.floor(Math.random() * this.length)];
-  };
-
-  //get body tag to start adding dom elements
-  const body = document.getElementsByTagName("body")[0];
-
-  //create shelf for books
-  const shelf = document.createElement("div");
-  shelf.style.display = "flex";
-  shelf.style.backgroundColor = "saddlebrown";
-  shelf.style.border = "16px solid black";
-  shelf.style.minWidth = "100%";
-  shelf.style.maxWidth = "100%";
-  shelf.style.minHeight = "33%";
-  body.appendChild(shelf);
-
-  //constructs books with attributes for title, author, triedRecipe/nottriedRecipe status, cuisine, and fav recipe
   class cookBook {
-    constructor(title, author, triedRecipe, cuisine, recipe) {
+    constructor(title, author, recommendedYN, cuisine, recipe) {
       this.title = title;
       this.author = author;
-      this.triedRecipe = triedRecipe;
+      this.recommendedYN = recommendedYN;
       this.cuisine = cuisine;
       this.recipe = recipe;
     }
-    markBookAstriedRecipe = function () {
-      if ((this.triedRecipe = false)) {
-        this.triedRecipe = true;
-      } else {
-        this.triedRecipe = false;
-      }
-    };
-    addToShelf() {
-      const bookDiv = document.createElement("div");
-      shelf.appendChild(bookDiv);
-      bookDiv.style.display = "flex";
-      bookDiv.style.flexDirection = "column";
+  }
 
-      const color = bookColors.random();
-      bookDiv.style.backgroundColor = color;
-      bookDiv.style.border = "8px black solid";
-      bookDiv.style.maxWidth = "20%";
-      bookDiv.style.minWidth = "20%";
+  cookBook.prototype.markBookAsRecommendedYN = function () {
+    if ((this.recommendedYN = false)) {
+      this.recommendedYN = true;
+    } else {
+      this.recommendedYN = false;
+    }
+  };
 
-      for (const value of Object.values(this)) {
-        if (typeof value == "string") {
-          bookDiv.innerText += " " + value;
+  function setBodyHTMLAttributes() {
+    let bodyHTML = document.querySelectorAll(".bodyHTML");
+    let i = bodyHTML.length;
+    while (i--) {
+      bodyHTML[i].style.backgroundColor = "white";
+      bodyHTML[i].style.display = "flex";
+      bodyHTML[i].style.alignItems = "center";
+      bodyHTML[i].style.justifyContent = "center";
+      bodyHTML[i].style.flexDirection = "column";
+      bodyHTML[i].style.boxSizing = "border-box";
+    }
+  }
+
+  function createHeaders() {
+    //make header container
+    const headerContainer = document.createElement("div");
+    headerContainer.style.display = "flex";
+    headerContainer.style.flexDirection = "column";
+    headerContainer.style.justifyContent = "center";
+    headerContainer.style.alignItems = "center";
+    headerContainer.style.textAlign = "center";
+
+    //add header
+    const header = document.createElement("h1");
+    header.innerText = "My Cookbook Library";
+    headerContainer.appendChild(header);
+
+    //add subtitlte
+    const subtitle = document.createElement("para");
+    subtitle.innerText = "Add your favorite cookbooks below.";
+    headerContainer.appendChild(subtitle);
+    subtitle.style.marginBottom = "24px";
+
+    return headerContainer;
+  }
+
+  //create shelf for books
+
+  function buildShelf() {
+    const shelf = document.createElement("div");
+    shelf.style.display = "grid";
+    shelf.style.gridTemplateColumns = "repeat(auto-fill, 350px)";
+    shelf.style.justifyContent = "center";
+    shelf.style.alignItems = "center";
+    shelf.style.minWidth = "70%";
+    //shelf.style.minHeight = "50%";
+    return shelf;
+  }
+
+  function buildLibrary(library, shelf) {
+    for (i = 0; i < library.length; i++) {
+      shelf.appendChild(createBookDiv(library[i]));
+    }
+    return shelf;
+  }
+
+  function createLibrary() {
+    let library = [];
+    return library;
+  }
+
+  function addBookToLibrary(book, library) {
+    library.push(book);
+
+    return library;
+  }
+
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  function createBookDiv(book) {
+    //create an element bookDiv
+    const bookDiv = document.createElement("div");
+    bookDiv.style.display = "flex";
+    bookDiv.style.justifyContent = "space-between";
+    bookDiv.style.alignItems = "center";
+    bookDiv.style.flexDirection = "column";
+    bookDiv.style.backgroundColor = "grey";
+    bookDiv.style.border = "8px black solid";
+    //bookDiv.style.maxHeight = "252px";
+    //bookDiv.style.minWidth = "33%";
+    bookDiv.style.padding = "16px";
+    bookDiv.style.margin = "12px";
+
+    //add text to the bookDiv
+    for (const key of Object.keys(book)) {
+      if (typeof book[key] == "boolean") {
+        const para = document.createElement("p");
+        para.style.margin = "8px";
+        para.innerText = "Tried recipe?";
+        //need to add way to show if recipe was tried
+        bookDiv.appendChild(para);
+      } else if (typeof book[key] == "string") {
+        if (key == "title") {
+          const title = document.createElement("h1");
+          title.style.margin = "12px";
+          bookDiv.appendChild(title);
+          title.innerText = book[key];
+        } else {
+          const para = document.createElement("p");
+          para.style.margin = "8px";
+          bookDiv.appendChild(para);
+          let keyString = capitalizeFirstLetter(key);
+          para.innerText = `${keyString}: ${book[key]}`;
         }
       }
     }
+    return bookDiv;
   }
 
-  //crate button associated with the toggle recipe function once cookBook is created
-  function createToggleTriedRecipeBtn(myCookBookLibrary) {
-    const toggleTriedRecipeBtn = document.createElement("button");
-    toggleTriedRecipeBtn.innerText = "I've Tried a Recipe From This Cookbook";
-    //when I called this function I have to make sure that "this" is actually the book in question..
-    toggleTriedRecipeBtn.onclick(this.markBookAstriedRecipe);
-    return toggleTriedRecipeBtn;
+  let spanishCuisine = new cookBook(
+    "Spanish Cuisine",
+    "Rosa",
+    true,
+    "Spanish",
+    "Papas Bravas"
+  );
+
+  let chineseCooking = new cookBook(
+    "Chinese Cooking",
+    "Ming",
+    false,
+    "Chinese",
+    "Fried Rice"
+  );
+
+  let koreanFood = new cookBook(
+    "Korean Food",
+    "Song",
+    true,
+    "Korean",
+    "Kimchi"
+  );
+
+  let italianClassics = new cookBook(
+    "Italian Classics",
+    "Mario",
+    false,
+    "Italian",
+    "pasta"
+  );
+
+  let american = new cookBook("American", "Bob", false, "American", "pizza");
+
+  //function to create form container
+  function makeFormContainer() {
+    const formContainer = document.createElement("div");
+    formContainer.style.display = "none";
+    document.body.appendChild(formContainer);
+    return formContainer;
   }
 
-  //functions to open form
-  function openForm(myCookBookLibrary) {
-    document.getElementById("popUpForm").style.display = "block";
-    if (!document.body.contains(document.getElementById("cancelBtn"))) {
-      document.getElementById("popUpForm").appendChild(addCancelBtn());
-    }
+  //function to create form
+  function makeForm(formContainer) {
+    // Create a break line element
+    let br = document.createElement("br");
 
-    //event listener to call function to add new cookbook when submit is pressed
-    const form = document.querySelector("#newCookBookForm");
+    //create strong element
+    const strong = document.createElement("strong");
 
-    form.addEventListener("submit", function (event) {
-      let book = addNewCookBook(this);
+    //create a form dynamically
+    const form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", "?");
+    formContainer.appendChild(form);
 
-      //this cookbook library is a global constant that needs to be removed...also TOP said I should use an array but I'm not using it so far
-      myCookBookLibrary.push(book);
+    // Create an input element for title
+    const recipeTitle = document.createElement("input");
+    recipeTitle.setAttribute("type", "text");
+    recipeTitle.setAttribute("name", "recipeTitle");
+    recipeTitle.setAttribute("placeholder", "Spanish Cuisine");
 
-      //create new book div on shelf
-      book.addToShelf();
+    // Create an input element for author
+    const author = document.createElement("input");
+    author.setAttribute("type", "text");
+    author.setAttribute("name", "author");
+    author.setAttribute("placeholder", "Rosa Madrid");
 
-      //next line closes form
-      document.getElementById("popUpForm").style.display = "none";
+    // Create an input element for typeOfCuisine
+    const typeOfCuisine = document.createElement("input");
+    typeOfCuisine.setAttribute("type", "text");
+    typeOfCuisine.setAttribute("name", "typeOfCuisine");
+    typeOfCuisine.setAttribute("placeholder", "Spanish");
 
-      //fix for repeated firing of submit
-      event.stopImmediatePropagation();
-      event.preventDefault();
+    // Create an input element for favRecipe
+    const favRecipe = document.createElement("input");
+    favRecipe.setAttribute("type", "text");
+    favRecipe.setAttribute("name", "favRecipe");
+    favRecipe.setAttribute("placeholder", "Paella");
+
+    // Create an input element for recommendedYN
+    const recommendedYN = document.createElement("input");
+    recommendedYN.setAttribute("type", "checkbox");
+    recommendedYN.setAttribute("name", "recommendedYN");
+    recommendedYN.setAttribute("placeholder", "yes");
+
+    //create a submit button
+    const s = document.createElement("button");
+    s.innerText = "Submit";
+    form.onsubmit = (e) => e.preventDefault();
+
+    s.addEventListener("click", function (event) {
+      //create a new array called library with the latest book
+      library = addBookToLibrary(addNewCookBook(form), library);
+
+      //add a new DOM element newShelf to replace the old shelf
+      const newShelf = buildLibrary(library, buildShelf());
+      document.body.lastChild.replaceWith(newShelf);
+
+      //prevent from refreshing unnecessarily
+      event.stopImmediatePropagation;
+      event.preventDefault;
     });
+
+    //s.setAttribute("type", "button");
+    //s.setAttribute("value", "Submit");
+    //s.addEventListener("submit", addNewCookBook(form));
+
+    //append title input to form
+    const strongTitle = strong.cloneNode();
+    strongTitle.innerText = "Cookbook Title";
+    form.appendChild(strongTitle);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //append title input to form
+    form.appendChild(recipeTitle);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //append author input title to form
+    const authorTitle = strong.cloneNode();
+    authorTitle.innerText = "Author";
+    form.appendChild(authorTitle);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //add author input
+    form.appendChild(author);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //append typeOfCuisine input title to form
+    const typeOfCuisineTitle = strong.cloneNode();
+    typeOfCuisineTitle.innerText = "Type Of Cuisine";
+    form.appendChild(typeOfCuisineTitle);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //add typeOfCuisine input
+    form.appendChild(typeOfCuisine);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //append favRecipe input title to form
+    const favRecipeTitle = strong.cloneNode();
+    favRecipeTitle.innerText = "Favorite Recipe?";
+    form.appendChild(favRecipeTitle);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //add favRecipe input
+    form.appendChild(favRecipe);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //append recommendedYN input title to form
+    const recommendedYNTitle = strong.cloneNode();
+    recommendedYNTitle.innerText = "Recommended?";
+    form.appendChild(recommendedYNTitle);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //add favRecipe input
+    form.appendChild(recommendedYN);
+
+    //add line break
+    form.appendChild(br.cloneNode());
+
+    //append submit button
+    form.appendChild(s);
+
+    return form;
   }
 
-  //function to call on submit to turn form data into a cookbook object
+  //function to get data from form and return CookBook object
   function addNewCookBook(form) {
     let formData = new FormData(form);
 
-    let title = formData.get("title");
+    let title = formData.get("recipeTitle");
     let author = formData.get("author");
-    let cuisine = formData.get("cuisine");
-    let favrecipe = formData.get("favrecipe");
+    let cuisine = formData.get("typeOfCuisine");
+    let favrecipe = formData.get("favRecipe");
     let triedRecipe = false;
 
-    //reset form inputs to zero after getting from data and inserting into array
-    //tried to add myCookBookLibrary.push(book) to this with myCookBookLibrary as a parameter, did not work... need to try again
-    const inputs = document.querySelectorAll(
-      "#title, #author, #cuisine, #favrecipe, #triedRecipe"
-    );
-    inputs.forEach((input) => {
-      input.value = "";
-    });
+    console.log("I did a thing");
+    console.log(formData);
 
     return new cookBook(title, author, triedRecipe, cuisine, favrecipe);
   }
 
-  //functino to close window if needed
-  function addCancelBtn() {
-    const cancelBtn = document.createElement("button");
-    cancelBtn.innerText = "Cancel";
-    cancelBtn.setAttribute("id", "cancelBtn");
-    cancelBtn.onclick = function () {
-      //bad practice to call the same anonymous function due to memory issues but I do that here, need to turn this into a closeForm function, was getting errors I did not understand.
-      document.getElementById("popUpForm").style.display = "none";
-    };
-    return cancelBtn;
+  //function to add a button that opens the form
+  function makeOpenFormBtn(formContainer) {
+    const openFormBtn = document.createElement("button");
+    openFormBtn.addEventListener("click", () => {
+      openForm(formContainer);
+    });
+    openFormBtn.innerText = "Add A New Cookbook";
+    return openFormBtn;
   }
 
-  //button to create button to open the form to add a new cookbook to myCookBookLibrary
-  function addNewCookBookBtn(myCookBookLibrary) {
-    const addNewCookBookBtn = document.createElement("button");
-    addNewCookBookBtn.innerText = "Add A New Cookbook";
-    addNewCookBookBtn.onclick = function () {
-      openForm(myCookBookLibrary);
-    };
-    return addNewCookBookBtn;
+  //function to add a button that closes the form
+  function makeCloseFormBtn(formContainer) {
+    const closeFormBtn = document.createElement("button");
+    closeFormBtn.addEventListener("click", () => {
+      closeForm(formContainer);
+    });
+    closeFormBtn.innerText = "Close";
+    return closeFormBtn;
   }
 
-  //test function to make sure my functions work and library exists
-  //as my program got more complicated I lost sight of how I test it...need to look into how to test addEventListener functions?
-  //so annoying to have to add cookbook after cookbook... should make this priority ASAP
-  function test() {
-    console.log("test runs!");
-
-    const el = document.createElement("pre");
-    el.style.color = "black";
-    document.body.appendChild(el);
-
-    function log(text) {
-      console.log(text);
-      el.innerText += `\n${text}`;
-    }
-
-    function assert(assertion, message) {
-      if (!assertion) {
-        log(message);
-      }
-    }
-
-    let library = [];
-
-    let spanishCuisine = new cookBook(
-      "Spanish Cuisine",
-      "Rosa",
-      false,
-      "Spanish",
-      "Paella"
-    );
-
-    library.push(spanishCuisine);
-
-    assert(1 + 1 == 2, "Math is wrong");
-    let book = library.find((book) => book.title === "Spanish Cuisine");
-    assert(book.title == "Spanish Cuisine", "Spanish Cuisine should exist");
+  //function to Open Form
+  function openForm(formContainer) {
+    formContainer.style.display = "block";
   }
 
-  document.body.appendChild(addNewCookBookBtn(myCookBookLibrary));
-  test();
+  //function to close form
+  function closeForm(formContainer) {
+    formContainer.style.display = "none";
+  }
+
+  /*let library = addBookToLibrary(spanishCuisine);
+  library = addBookToLibrary(chineseCooking);
+  library = addBookToLibrary(koreanFood);
+  library = addBookToLibrary(italianClassics);
+  library = addBookToLibrary(american);*/
+
+  //get body tag to start adding dom elements
+  const body = document.getElementsByTagName("body")[0];
+  body.setAttribute("class", "bodyHTML");
+
+  const html = document.getElementsByTagName("html")[0];
+  html.setAttribute("class", "bodyHTML");
+
+  //set attributes on body/html
+  setBodyHTMLAttributes();
+
+  //make the header container
+  const headerContainer = createHeaders();
+  document.body.appendChild(headerContainer);
+
+  let library = createLibrary();
+
+  //make form container and form
+  const formContainer = makeFormContainer();
+  const openFormBtn = makeOpenFormBtn(formContainer);
+  document.body.appendChild(openFormBtn);
+
+  const form = makeForm(formContainer);
+  document.body.appendChild(formContainer);
+  formContainer.appendChild(form);
+  form.appendChild(makeCloseFormBtn(formContainer));
 }
 
 main();
